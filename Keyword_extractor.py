@@ -43,7 +43,7 @@ from pathlib import Path
 import docx
 
 
-def collect_keywords_matrix_yake(root_dir, excel_path, top_n=15):
+def collect_keywords_matrix_yake(root_dir, excel_path, top_n=25):
     root = Path(root_dir)
 
     keyword_map = {}  # document_id → [keywords]
@@ -85,6 +85,7 @@ def collect_keywords_matrix_yake(root_dir, excel_path, top_n=15):
     df.to_excel(excel_path, index=False)
 
     print(f"✅ Keyword matrix saved to: {excel_path}")
+
 
 
 
