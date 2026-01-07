@@ -1,0 +1,128 @@
+# OCR Post-Processing Cleaner
+
+## Overview
+
+This application is a **research-oriented post-OCR text cleaning and analysis tool** designed for batch processing of English and Urdu DOCX files. It is intended for academic, archival, and policy-research workflows where OCR output requires **deterministic, transparent, and reproducible cleaning** rather than black-box correction.
+
+The tool does **not perform OCR itself**. Instead, it operates on OCR-generated DOCX files and applies structured normalization, followed by optional keyword extraction.
+
+---
+
+## Motivation and Scope
+
+In academic and institutional settings, OCR-generated text often suffers from:
+
+* Broken words and inconsistent spacing
+* Unicode and encoding inconsistencies (especially in Urdu)
+* Noise introduced by page numbers, headers, and formatting artifacts
+
+Most available tools either:
+
+* Require manual editing in word processors, or
+* Apply opaque AI-based corrections that are difficult to audit
+
+This project addresses that gap by providing a **rule-based, auditable, and language-aware post-processing pipeline** suitable for research use.
+
+---
+
+## Core Features
+
+### 1. English OCR Cleaning
+
+* Cleans OCR artifacts from English DOCX files
+* Normalizes spacing, punctuation, and common OCR errors
+* Preserves original files and adds `.cleaned.docx` alongside them
+
+### 2. Urdu OCR Cleaning
+
+* Normalizes Unicode, ligatures, and spacing in Urdu OCR output
+* Avoids aggressive spell correction to preserve textual integrity
+* Designed for mixed-quality OCR sources
+
+### 3. Keyword Extraction (YAKE)
+
+* Extracts keywords from cleaned DOCX files
+* Produces a single Excel keyword matrix (`keywords.xlsx`)
+* Intended for exploratory text analysis and corpus overview
+
+### 4. Collect & Rename Cleaned Files
+
+* Collects all `.cleaned.docx` files from a directory tree
+* Removes the `.cleaned` suffix and resolves filename collisions
+* Outputs a flat ZIP suitable for sharing or submission
+
+---
+
+## Expected Workflow
+
+1. Perform OCR using an external tool (ABBYY, Tesseract, etc.)
+2. Upload OCR-generated DOCX files (or a ZIP of folders)
+3. Run English or Urdu OCR Cleaning
+4. (Optional) Run Keyword Extraction on cleaned files
+5. Download results for further qualitative or quantitative analysis
+
+---
+
+## Input and Output Contracts
+
+### Input
+
+* Single `.docx` file, or
+* ZIP archive containing folders with `.docx` files
+
+### Output
+
+* **OCR Cleaning:** ZIP containing original files + `.cleaned.docx` files
+* **Keyword Extraction:** Single Excel file (`keywords.xlsx`)
+* **Rename Utility:** ZIP containing renamed cleaned DOCX files only
+
+No files are stored permanently. All processing is session-based.
+
+---
+
+## Design Principles
+
+* **Determinism:** Same input produces the same output
+* **Transparency:** Rule-based transformations, no hidden models
+* **Reproducibility:** Suitable for academic citation and review
+* **Separation of concerns:** Cleaning, analysis, and utilities are distinct modes
+
+---
+
+## Technical Stack
+
+* Python
+* Streamlit (UI)
+* `python-docx` (DOCX processing)
+* YAKE (keyword extraction)
+* pandas + openpyxl (Excel output)
+
+---
+
+## Limitations
+
+* This tool does not perform OCR
+* Not suitable for very large corpora or long-running background jobs
+* No authentication or access control (Streamlit Community Cloud)
+* Designed for research and internal use, not production-scale deployment
+
+---
+
+## Intended Audience
+
+* Researchers and academics
+* Policy analysts and think tanks
+* Digital humanities projects
+* Archivists working with bilingual corpora (English/Urdu)
+
+---
+
+## Citation and Use
+
+If used in academic or policy research, this tool may be cited as a **post-OCR cleaning pipeline** developed for deterministic text normalization and exploratory keyword analysis.
+
+---
+
+## License
+
+This project is intended for research and educational use. Licensing terms may be added as required.
