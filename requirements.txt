@@ -6,3 +6,4 @@ regex
 tqdm
 langdetect
 wordfreq
+openpyxl
