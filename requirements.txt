@@ -5,3 +5,4 @@ yake
 regex
 tqdm
 langdetect
+wordfreq
