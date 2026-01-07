@@ -1,7 +1,0 @@
-streamlit
-python-docx
-pandas
-yake
-regex
-tqdm
-langdetect
