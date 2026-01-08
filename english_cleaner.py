@@ -152,6 +152,7 @@ def normalize_em_dashes(text):
     - minus signs
     """
 
+    
     # 1️⃣ Normalize double or more hyphens between letters → em dash
     text = re.sub(
         r'(?<=[A-Za-z])-{2,}(?=[A-Za-z])',
@@ -269,6 +270,8 @@ def enhanced_ocr_preclean(text):
     if not text:
         return text
 
+    #Normalize em_dash 
+    text = normalize_em_dashes(text)
     # 1. Initial normalization
     text = normalize_unicode_and_spaces(text)
 
@@ -634,5 +637,6 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
