@@ -111,12 +111,6 @@ def highlight_misspellings_in_paragraph(paragraph):
                 misspelled.add(w)
             continue
 
-        # Urdu word
-        if UR_WORD_RE.match(w):
-            if not is_valid_urdu(w):
-                misspelled.add(w)
-            continue
-
         # Mixed / garbage tokens → ignore safely
 
     if not misspelled:
@@ -696,6 +690,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
