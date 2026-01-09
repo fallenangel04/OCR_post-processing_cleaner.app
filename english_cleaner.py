@@ -54,10 +54,16 @@ EN_WORD_RE = re.compile(r"^[A-Za-z][A-Za-z']+$")
 def is_word(w, threshold=2.5):
     return zipf_frequency(w.lower(), "en") >= threshold
 
-URDU_WORD_RE = re.compile(r'^[\u0600-\u06FF\u0750-\u077F]+$')
+def is_valid_arabic(word):
+    return zipf_frequency(word, "ar") >= 2.0
 
-def is_urdu_word(token: str) -> bool:
-    return bool(URDU_WORD_RE.match(token))
+# def is_valid_urdu(word):
+#     return zipf_frequency(word, "ur") >= 2.0
+
+# URDU_WORD_RE = re.compile(r'^[\u0600-\u06FF\u0750-\u077F]+$')
+
+# def is_urdu_word(token: str) -> bool:
+#     return bool(URDU_WORD_RE.match(token))
 
 AR_WORD_RE = re.compile(
     r'^[\u0600-\u06FF]+$'
@@ -110,6 +116,16 @@ def highlight_misspellings_in_paragraph(paragraph):
             if not is_word(w):
                 misspelled.add(w)
             continue
+        # Arabic word
+        if AR_WORD_RE.match(w)
+            if not is_arabic_word(w):
+                misspelled.add(w)
+            continue
+        # Urdu word
+        # if UR_WORD_RE.match(w):
+        #     if not is_valid_urdu(w):
+        #         misspelled.add(w)
+        #     continue
 
         # Mixed / garbage tokens → ignore safely
 
@@ -497,33 +513,33 @@ def format_arabic_run(run):
 
     # Style
 
-def format_urdu_run(run):
-    """
-    Apply Urdu formatting to a RUN only.
-    """
+# def format_urdu_run(run):
+#     """
+#     Apply Urdu formatting to a RUN only.
+#     """
 
-    rPr = run._element.get_or_add_rPr()
+#     rPr = run._element.get_or_add_rPr()
 
-    # RTL
-    rtl = OxmlElement("w:rtl")
-    rPr.append(rtl)
+#     # RTL
+#     rtl = OxmlElement("w:rtl")
+#     rPr.append(rtl)
 
-    # Language
-    lang = OxmlElement("w:lang")
-    lang.set(qn("w:val"), "ur-PK")
-    rPr.append(lang)
+#     # Language
+#     lang = OxmlElement("w:lang")
+#     lang.set(qn("w:val"), "ur-PK")
+#     rPr.append(lang)
 
-    # Font
-    rFonts = OxmlElement("w:rFonts")
-    rFonts.set(qn("w:ascii"), "Jameel Noori Nastaleeq")
-    rFonts.set(qn("w:hAnsi"), "Jameel Noori Nastaleeq")
-    rFonts.set(qn("w:cs"), "Jameel Noori Nastaleeq")
-    rFonts.set(qn("w:fareast"), "Jameel Noori Nastaleeq")
-    rPr.append(rFonts)
+#     # Font
+#     rFonts = OxmlElement("w:rFonts")
+#     rFonts.set(qn("w:ascii"), "Jameel Noori Nastaleeq")
+#     rFonts.set(qn("w:hAnsi"), "Jameel Noori Nastaleeq")
+#     rFonts.set(qn("w:cs"), "Jameel Noori Nastaleeq")
+#     rFonts.set(qn("w:fareast"), "Jameel Noori Nastaleeq")
+#     rPr.append(rFonts)
 
-    # Style
-    run.font.size = Pt(14)
-    run.bold = False
+#     # Style
+#     run.font.size = Pt(14)
+#     run.bold = False
 
 def ocr_preclean(text):
     """Apply OCR-specific cleaning before paragraph-level normalization."""
@@ -690,6 +706,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
