@@ -54,10 +54,10 @@ EN_WORD_RE = re.compile(r"^[A-Za-z][A-Za-z']+$")
 def is_word(w, threshold=2.5):
     return zipf_frequency(w.lower(), "en") >= threshold
 
-URDU_SCRIPT_RE = re.compile(r'^[\u0600-\u06FF\u0750-\u077F]+$')
+URDU_WORD_RE = re.compile(r'^[\u0600-\u06FF\u0750-\u077F]+$')
 
 def is_urdu_word(token: str) -> bool:
-    return bool(URDU_SCRIPT_RE.match(token))
+    return bool(URDU_WORD_RE.match(token))
 
 AR_WORD_RE = re.compile(
     r'^[\u0600-\u06FF]+$'
@@ -696,6 +696,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
