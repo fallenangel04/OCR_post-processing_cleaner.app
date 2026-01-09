@@ -583,9 +583,9 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False)
     auto_patterns = [re.escape(h) for h in detected_headers]
     if auto_patterns:
         dynamic_header_regex = [fr'^\s*{p}\s*$' for p in auto_patterns]
+        print(HEADER_PATTERNS)
         local_header_patterns = HEADER_PATTERNS.copy()
         local_header_patterns.extend(dynamic_header_regex)
-        print(HEADER_PATTERNS)
         
     cleaned_paras = remove_known_headers(
         cleaned_paras,
@@ -686,6 +686,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
