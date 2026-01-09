@@ -581,12 +581,14 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False)
         # Remove known repetitive headers (book title, Preface repeats, Appendix headers)
         # --- Dynamically remove detected repetitive headers ---
     auto_patterns = [re.escape(h) for h in detected_headers]
+    
+    # ALWAYS define local copy (no global mutation)
+    local_header_patterns = HEADER_PATTERNS.copy()
+    
     if auto_patterns:
         dynamic_header_regex = [fr'^\s*{p}\s*$' for p in auto_patterns]
-        print(HEADER_PATTERNS)
-        local_header_patterns = HEADER_PATTERNS.copy()
         local_header_patterns.extend(dynamic_header_regex)
-        
+    
     cleaned_paras = remove_known_headers(
         cleaned_paras,
         detected_headers,
@@ -594,6 +596,7 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False)
         audit_writer=audit_writer,
         filename=input_path.name
     )
+
 
     # Build new docx
     new = docx.Document()
@@ -686,6 +689,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
