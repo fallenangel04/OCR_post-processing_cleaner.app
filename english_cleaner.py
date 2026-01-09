@@ -342,6 +342,10 @@ def enhanced_ocr_preclean(text):
     text = re.sub(r'(?<!\d),(\d{1,3})(?=\s+[A-Za-z\u0600-\u06FF])',',',text)
     # Remove numbers after a full stop followed by space if followed by capital letter or end of paragraph
     text = re.sub(r'\.\s+\d+(?=\s+[A-Z\u0600-\u06FF]|$)', '. ', text)
+    # Remove digits that appear immediately after a colon or semicolon,
+    # only if they are followed by whitespace, a paragraph break, or end of text
+    text = re.sub(r'([:;])\d+(?=\s|$)', r'\1', text)
+
 
     # 7. Special character handling
     text = re.sub(r'["""]', '"', text)
@@ -637,6 +641,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
