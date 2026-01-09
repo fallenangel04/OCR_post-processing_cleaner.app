@@ -132,9 +132,6 @@ def highlight_misspellings_in_paragraph(paragraph):
     if not misspelled:
         return
 
-    # Clear paragraph and rebuild runs
-    paragraph._p.clear_content()
-
     tokens = re.split(r"(\b[A-Za-z\u0600-\u06FF\u0750-\u077F']+\b)", text)
     for tok in tokens:
         run = paragraph.add_run(tok)
@@ -640,8 +637,8 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False)
             # if is_urdu_word(token):
             #     format_urdu_run(run)
         
-            if is_arabic_word(token):
-                format_arabic_run(run)
+            # if is_arabic_word(token):
+            #     format_arabic_run(run)
 
         current_is_heading = is_heading(para_text)
 
@@ -706,6 +703,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
