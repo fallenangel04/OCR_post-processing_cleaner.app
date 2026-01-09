@@ -117,7 +117,7 @@ def highlight_misspellings_in_paragraph(paragraph):
                 misspelled.add(w)
             continue
         # Arabic word
-        if AR_WORD_RE.match(w)
+        if AR_WORD_RE.match(w):
             if not is_arabic_word(w):
                 misspelled.add(w)
             continue
@@ -637,10 +637,10 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False)
         
             run = p.add_run(token)
         
-            if is_urdu_word(token):
-                format_urdu_run(run)
+            # if is_urdu_word(token):
+            #     format_urdu_run(run)
         
-            elif is_arabic_word(token):
+            if is_arabic_word(token):
                 format_arabic_run(run)
 
         current_is_heading = is_heading(para_text)
@@ -706,6 +706,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
