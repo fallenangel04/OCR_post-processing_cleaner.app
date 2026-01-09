@@ -44,6 +44,10 @@ URDU_WORD_RE = re.compile(r'[\u0600-\u06FF\u0750-\u077F]+')
 def is_urdu_text(text: str) -> bool:
     return bool(URDU_CHAR_RE.search(text))
 
+EN_WORD_RE = re.compile(r'^[\(\[\{"]*[A-Za-z]+[\)\]\}",\.\:;!?]*$')
+
+def is_english_word(token: str) -> bool:
+    return bool(EN_WORD_RE.match(token))
 
 def normalize_urdu_text(text: str) -> str:
     """Unicode- and OCR-safe normalization for Urdu."""
@@ -172,14 +176,6 @@ def clean_urdu_numeric_artifacts(text: str) -> str:
 
     text = '\n\n'.join(cleaned)
 
-    # 4. Protect time formats: 11.40 A.M → 11:40 A.M
-    text = re.sub(
-        r'\b(\d{1,2})\.(\d{2})\s*(A\.M|P\.M)\b',
-        r'\1:\2 \3',
-        text,
-        flags=re.IGNORECASE
-    )
-
     # 5. Collapse excessive newlines
     text = re.sub(r'\n{3,}', '\n\n', text)
 
@@ -218,7 +214,33 @@ def highlight_urdu_misspellings(paragraph):
         if part in misspelled:
             run.font.highlight_color = WD_COLOR_INDEX.YELLOW
 
+def format_english_run(run):
+    """
+    Apply English (LTR) formatting to a RUN only.
+    """
 
+    rPr = run._element.get_or_add_rPr()
+
+    # Explicit LTR (important in RTL documents)
+    ltr = OxmlElement("w:ltr")
+    rPr.append(ltr)
+
+    # Language
+    lang = OxmlElement("w:lang")
+    lang.set(qn("w:val"), "en-US")
+    rPr.append(lang)
+
+    # Font
+    rFonts = OxmlElement("w:rFonts")
+    rFonts.set(qn("w:ascii"), "Times New Roman")
+    rFonts.set(qn("w:hAnsi"), "Times New Roman")
+    rFonts.set(qn("w:cs"), "Times New Roman")
+    rFonts.set(qn("w:fareast"), "Times New Roman")
+    rPr.append(rFonts)
+
+    # Style
+    run.font.size = Pt(12)
+    run.bold = False
 
 # ============================================================
 # PARAGRAPH FORMATTING (FINAL PASS)
@@ -350,7 +372,6 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False)
             normalize_urdu_text(p)
         )
         for p in raw_paras
-        if is_urdu_text(p)
     ]
 
     # Header detection & removal
@@ -374,11 +395,19 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False)
         highlight_urdu_misspellings(p)
 
         # Final paragraph formatting
+        # Final paragraph formatting (Urdu default)
         for run in p.runs:
-            set_run_urdu_properties(run)
+            text = run.text.strip()
+        
+            if is_english_word(text):
+                format_english_run(run)
+            else:
+                set_run_urdu_properties(run)
+                apply_urdu_font_size(run, URDU_FONT_SIZE)
+
+        # Paragraph direction (Urdu document default)
         set_paragraph_rtl(p)
-        for run in p.runs:
-            apply_urdu_font_size(run, URDU_FONT_SIZE)
+
     # Margins
     for sec in new.sections:
         sec.top_margin = Inches(1)
@@ -426,3 +455,4 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
