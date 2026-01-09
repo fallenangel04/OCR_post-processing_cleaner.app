@@ -50,10 +50,7 @@ EN_DICT = SafeDict(
 )
 
 EN_WORD_RE = re.compile(r"^[A-Za-z][A-Za-z']+$")
-UR_WORD_RE = re.compile(r"^[\u0600-\u06FF\u0750-\u077F]+$")
 
-def is_valid_urdu(word):
-    return zipf_frequency(word, "ur") >= 2.0
 def is_word(w, threshold=2.5):
     return zipf_frequency(w.lower(), "en") >= threshold
 
@@ -62,6 +59,16 @@ URDU_SCRIPT_RE = re.compile(r'^[\u0600-\u06FF\u0750-\u077F]+$')
 def is_urdu_word(token: str) -> bool:
     return bool(URDU_SCRIPT_RE.match(token))
 
+AR_WORD_RE = re.compile(
+    r'^[\u0600-\u06FF]+$'
+)
+
+URDU_ONLY_CHARS = set("ٹڈڑںھہے")
+
+def is_arabic_word(token: str) -> bool:
+    if not AR_WORD_RE.match(token):
+        return False
+    return not any(ch in URDU_ONLY_CHARS for ch in token)
 
 def _safe_preview(s, n=140):
     return (s[:n] + "...") if len(s) > n else s
@@ -463,6 +470,32 @@ def merge_broken_words(paragraphs, audit_writer=None, filename=None):
         i += 1
     return merged
 
+def format_arabic_run(run):
+    """
+    Apply Arabic formatting to a RUN only (Traditional Arabic font).
+    """
+
+    rPr = run._element.get_or_add_rPr()
+
+    # RTL
+    rtl = OxmlElement("w:rtl")
+    rPr.append(rtl)
+
+    # Language
+    lang = OxmlElement("w:lang")
+    lang.set(qn("w:val"), "ar-SA")
+    rPr.append(lang)
+
+    # Font
+    rFonts = OxmlElement("w:rFonts")
+    rFonts.set(qn("w:ascii"), "Traditional Arabic")
+    rFonts.set(qn("w:hAnsi"), "Traditional Arabic")
+    rFonts.set(qn("w:cs"), "Traditional Arabic")
+    rFonts.set(qn("w:fareast"), "Traditional Arabic")
+    rPr.append(rFonts)
+
+    # Style
+
 def format_urdu_run(run):
     """
     Apply Urdu formatting to a RUN only.
@@ -511,8 +544,6 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False,
     input_path = Path(input_path)
     if not input_path.exists():
         raise FileNotFoundError(input_path)
-
-    prev_was_heading = False
 
     # read docx paragraphs
     doc = docx.Document(str(input_path))
@@ -572,11 +603,18 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False,
         # split into words + spaces (keeps punctuation intact)
         tokens = re.split(r"(\s+)", para_text)
 
-        for tok in tokens:
-            run = p.add_run(tok)
-
-            if is_urdu_word(tok):
+       for token in tokens:
+            if token.isspace():
+                p.add_run(token)
+                continue
+        
+            run = p.add_run(token)
+        
+            if is_urdu_word(token):
                 format_urdu_run(run)
+        
+            elif is_arabic_word(token):
+                format_arabic_run(run)
 
         current_is_heading = is_heading(para_text)
 
@@ -641,6 +679,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
