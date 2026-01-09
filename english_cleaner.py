@@ -215,7 +215,14 @@ def detect_repetitive_headers(paragraphs, min_repeats=3):
 
     return repetitive
 
-def remove_known_headers(paragraphs, detected_headers, audit_writer=None, filename=None):
+def remove_known_headers(
+    paragraphs,
+    detected_headers,
+    header_patterns,
+    audit_writer=None,
+    filename=None
+):
+
     """
     Removes repetitive headers detected by detect_repetitive_headers().
     Keeps the FIRST occurrence of each header line, removes the rest.
@@ -689,6 +696,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
