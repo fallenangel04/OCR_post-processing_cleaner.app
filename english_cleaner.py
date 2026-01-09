@@ -535,7 +535,7 @@ def is_heading(text):
 # -----------------------
 # Full-document processing and I/O
 # -----------------------
-def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False, merge_paragraphs=False):
+def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False):
     """
     Clean a single .docx file and write:
       - cleaned .docx (output_docx)
@@ -575,7 +575,7 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False,
         if not p or p.isspace():
             continue
         cleaned = ocr_preclean(p)
-        if cleaned != p and audit_writer:
+        if cleaned != p and audit:
             audit_writer.writerow([input_path.name, i, "ocr_preclean", "", _safe_preview(p), _safe_preview(cleaned)])
         cleaned_paras.append(cleaned)
         # Remove known repetitive headers (book title, Preface repeats, Appendix headers)
@@ -583,10 +583,17 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False,
     auto_patterns = [re.escape(h) for h in detected_headers]
     if auto_patterns:
         dynamic_header_regex = [fr'^\s*{p}\s*$' for p in auto_patterns]
-        HEADER_PATTERNS.extend(dynamic_header_regex)
+        local_header_patterns = HEADER_PATTERNS.copy()
+        local_header_patterns.extend(dynamic_header_regex)
         print(HEADER_PATTERNS)
         
-    cleaned_paras = remove_known_headers(cleaned_paras, detected_headers, audit_writer=audit_writer, filename=input_path.name)
+    cleaned_paras = remove_known_headers(
+        cleaned_paras,
+        detected_headers,
+        header_patterns=local_header_patterns,
+        audit_writer=audit_writer,
+        filename=input_path.name
+    )
 
     # Build new docx
     new = docx.Document()
@@ -603,7 +610,7 @@ def process_docx_file(input_path, output_docx, audit_csv_path=None, audit=False,
         # split into words + spaces (keeps punctuation intact)
         tokens = re.split(r"(\s+)", para_text)
 
-       for token in tokens:
+        for token in tokens:
             if token.isspace():
                 p.add_run(token)
                 continue
@@ -679,6 +686,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
