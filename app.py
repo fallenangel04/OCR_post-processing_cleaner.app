@@ -76,11 +76,11 @@ with tab_en:
         else:
             extract_dir = workspace / "single"
             extract_dir.mkdir()
-
-            shutil.copy2(input_path, extract_dir / input_path.name)
+            
             output_file = extract_dir / f"{input_path.stem}.cleaned.docx"
             process_english_file(input_path, output_file)
             zip_root = extract_dir
+
 
         zip_out = workspace / "english_ocr_results.zip"
         with zipfile.ZipFile(zip_out, "w") as z:
@@ -131,11 +131,11 @@ with tab_ur:
         else:
             extract_dir = workspace / "single"
             extract_dir.mkdir()
-
-            shutil.copy2(input_path, extract_dir / input_path.name)
+            
             output_file = extract_dir / f"{input_path.stem}.cleaned.docx"
-            process_urdu_file(input_path, output_file)
+            process_english_file(input_path, output_file)
             zip_root = extract_dir
+
 
         zip_out = workspace / "urdu_ocr_results.zip"
         with zipfile.ZipFile(zip_out, "w") as z:
@@ -246,3 +246,4 @@ with tab_rename:
             file_name="renamed_cleaned_files.zip",
             mime="application/zip"
         )
+
