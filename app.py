@@ -133,7 +133,7 @@ with tab_ur:
             extract_dir.mkdir()
             
             output_file = extract_dir / f"{input_path.stem}.cleaned.docx"
-            process_english_file(input_path, output_file)
+            process_urdu_file(input_path, output_file)      # ✅ FIXED
             zip_root = extract_dir
 
 
@@ -246,4 +246,5 @@ with tab_rename:
             file_name="renamed_cleaned_files.zip",
             mime="application/zip"
         )
+
 
