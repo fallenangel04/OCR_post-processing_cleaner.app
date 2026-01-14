@@ -123,6 +123,8 @@ def highlight_misspellings_in_paragraph(paragraph):
         run = paragraph.add_run(tok)
         if tok in misspelled:
             run.font.highlight_color = WD_COLOR_INDEX.YELLOW
+    paragraph.alignment = WD_ALIGN_PARAGRAPH.JUSTIFY
+
 
 def normalize_unicode_and_spaces(text: str) -> str:
     if text is None:
@@ -703,6 +705,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
