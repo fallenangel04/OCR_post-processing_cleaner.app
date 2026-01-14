@@ -90,6 +90,11 @@ UNICODE_HYPHEN_PATTERN = re.compile(
     "]"
 )
 
+def clear_paragraph(paragraph):
+    p = paragraph._element
+    for child in list(p):
+        p.remove(child)
+
 def highlight_misspellings_in_paragraph(paragraph):
     text = paragraph.text
 
@@ -110,7 +115,6 @@ def highlight_misspellings_in_paragraph(paragraph):
     if not misspelled:
         return
 
-    # 🔴 CRITICAL FIX
     clear_paragraph(paragraph)
 
     tokens = re.split(r"(\b[A-Za-z\u0600-\u06FF\u0750-\u077F']+\b)", text)
@@ -699,6 +703,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
