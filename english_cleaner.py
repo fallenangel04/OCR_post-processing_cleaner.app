@@ -91,48 +91,30 @@ UNICODE_HYPHEN_PATTERN = re.compile(
 )
 
 def highlight_misspellings_in_paragraph(paragraph):
-    """
-    Highlight misspelled English and Urdu words in a paragraph.
-    Visual-only modification of DOCX runs.
-    """
     text = paragraph.text
 
-    # Extract both English and Urdu tokens
     words = re.findall(r"\b[A-Za-z\u0600-\u06FF\u0750-\u077F']+\b", text)
-
     misspelled = set()
 
     for w in words:
-        # Skip short tokens
-        if len(w) < 4:
+        if len(w) < 4 or w.isupper():
             continue
 
-        # Skip acronyms
-        if w.isupper():
-            continue
-
-        # English word
         if EN_WORD_RE.match(w):
             if not is_word(w):
                 misspelled.add(w)
-            continue
-        # Arabic word
-        if AR_WORD_RE.match(w):
+        elif AR_WORD_RE.match(w):
             if not is_arabic_word(w):
                 misspelled.add(w)
-            continue
-        # Urdu word
-        # if UR_WORD_RE.match(w):
-        #     if not is_valid_urdu(w):
-        #         misspelled.add(w)
-        #     continue
-
-        # Mixed / garbage tokens → ignore safely
 
     if not misspelled:
         return
 
+    # 🔴 CRITICAL FIX
+    clear_paragraph(paragraph)
+
     tokens = re.split(r"(\b[A-Za-z\u0600-\u06FF\u0750-\u077F']+\b)", text)
+
     for tok in tokens:
         run = paragraph.add_run(tok)
         if tok in misspelled:
@@ -703,6 +685,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
