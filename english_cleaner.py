@@ -211,30 +211,43 @@ def remove_known_headers(
     audit_writer=None,
     filename=None
 ):
-
-    """
-    Removes repetitive headers detected by detect_repetitive_headers().
-    Keeps the FIRST occurrence of each header line, removes the rest.
-    """
     filtered = []
     seen_headers = set()
+
+    compiled_patterns = [re.compile(p) for p in header_patterns]
 
     for i, para in enumerate(paragraphs):
         stripped = para.strip()
 
-        if stripped in detected_headers:
+        # 1️⃣ Regex-based header removal (static + dynamic)
+        if any(pat.match(stripped) for pat in compiled_patterns):
             if stripped not in seen_headers:
-                # Keep first occurrence
                 seen_headers.add(stripped)
                 filtered.append(para)
             else:
-                # Remove subsequent repetitions
                 if audit_writer:
                     audit_writer.writerow([
                         filename or "",
                         i,
                         "remove_header",
-                        "repetitive_header_duplicate",
+                        "regex_header_duplicate",
+                        _safe_preview(stripped),
+                        ""
+                    ])
+            continue
+
+        # 2️⃣ Exact detected-header removal (fallback)
+        if stripped in detected_headers:
+            if stripped not in seen_headers:
+                seen_headers.add(stripped)
+                filtered.append(para)
+            else:
+                if audit_writer:
+                    audit_writer.writerow([
+                        filename or "",
+                        i,
+                        "remove_header",
+                        "exact_header_duplicate",
                         _safe_preview(stripped),
                         ""
                     ])
@@ -243,6 +256,7 @@ def remove_known_headers(
         filtered.append(para)
 
     return filtered
+
 
 
 def fix_ocr_hyphenated_words(text):
@@ -685,6 +699,7 @@ def process_folder(root_dir, output_dir, overwrite=False):
             )
         except Exception as e:
             print(f"❌ Failed: {docx_file} → {e}")
+
 
 
 
